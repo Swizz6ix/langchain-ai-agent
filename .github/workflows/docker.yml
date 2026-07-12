@@ -9,13 +9,21 @@ on:
         branches:
             - main
 
+    workflow_dispatch:
+
 permissions:
     contents: read
     packages: write
     security-events: write
+    id-token: write
+
+env:
+    REGISTRY: ghcr.io
+    IMAGE_NAME: ${{ github.repository }}
 
 jobs:
-    build:
+    docker-build:
+        name: Build and Scan Docker Image
         runs-on: ubuntu-latest
         outputs:
             image: ${{ steps.meta.outputs.tags }}
@@ -24,14 +32,23 @@ jobs:
             - name: Checkout Repository
               uses: actions/checkout@v4
 
+
+            #   Docker Setup
             - name: Set up Docker Buildx
               uses: docker/setup-buildx-action@v3
+
+
+            # Dockerfile Security
+            - name: Lint Dockerfile
+              uses: hadolint/hadolint-action@v3.1.0
             
+
+            # Metadata
             - name: Extract Docker metadata
               id: meta
               uses: docker/metadata-action@v5
               with:
-                images: ghcr.io/${{ github.repository }}
+                images: ${{env.REGISTRY}}/${{ env.IMAGE_NAME }}
                 tags: |
                     type=sha
                     type=ref,event=branch
@@ -40,6 +57,8 @@ jobs:
                     type=semver,pattern={{major}}.{{minor}}
                     type=semver,pattern={{major}}
 
+
+            # build image
             - name: Build Docker Image
               uses: docker/build-push-action@v6
               with:
@@ -52,29 +71,72 @@ jobs:
                 cache-from: type=gha
                 cache-to: type=gha,mode=max
 
+
+                # Supply chain Security
+                # This gives you:
+                # SLSA provenance attestation
+                # SPDX/CycloneDX-style SBOM metadata
                 provenance: true
                 sbom: true
 
-             # Scan Image
+             # Scan Image for vulnerability scan
             - name: Scan Docker Image
               uses: aquasecurity/trivy-action@v0.36.0
               with:
-                image-ref: ghcr.io/${{ github.repository }}:sha-${{ github.sha }}
+                image-ref: ${{ steps.meta.outputs.tags }}
                 format: sarif
                 output: trivy-results.sarif
                 severity: HIGH,CRITICAL
                 ignore-unfixed: true
                 exit-code: "1"
 
-            - name: Upload Trivy Report
+
+            # Trivy Misconfiguration   
+            - name: Trivy Configuration Scan
+              uses: aquasecurity/trivy-action@v0.36.0
+              with:
+                image-ref: |
+                    ${{ steps.meta.outputs.tags }}
+                scanners: misconfig
+                format: sarif
+                output: trivy-config.sarif
+                exit-code: "1"
+
+
+            # Upload Security Reports
+            - name: Upload Trivy Vulnerability Report
+              if: always()
               uses: github/codeql-action/upload-sarif@v3
               with:
-                sarif_file: trivy-results.sarif
+                sarif_file: trivy-vulnerability.sarif
+
+            - name: Upload Trivy Config Results
+              if: always()
+              uses: github/codeql-action/upload-sarif@v3
+              with:
+                sarif_file: trivy-config.sarif
+
+
+            # Export Reports
+            - name: Upload Docker Security Reports
+              if: always()
+              uses: actions/upload-artifact@v4
+              with:
+                name: docker-security-reports
+                path: |
+                    trivy-vulnerability.sarif
+                    trivy-config.sarif
+
+
                 
     # push Image
-    push:
-        needs: build
+    docker-push:
+        name: Push Image to GHCR
+
+        needs: docker-build
+
         if: github.event_name == 'push'
+
         runs-on: ubuntu-latest
 
         steps:
@@ -115,21 +177,25 @@ jobs:
                 cache-from: type=gha
                 cache-to: type=gha,mode=max
 
+                provenance: true
+                sbom: true
+
 
     notify:
-        needs: push
+        needs: 
+            docker-push
 
         if: always()
 
-        uses: ./.github/workflows/notifications.yml
+        uses: ./.github/workflows/notification.yml
 
         with:
-            status: ${{ needs.push.result }}
+            status: ${{ needs.docker-push.result }}
 
             environment: Development
 
             title: Docker Build
 
-            message: Docker image published successfully.
+            message: Docker image security scan and published successfully.
 
         secrets: inherit

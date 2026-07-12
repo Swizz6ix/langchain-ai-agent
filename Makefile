@@ -1,8 +1,8 @@
-# This tells make that these are commands, not files
-.PHONY: install run test lint format typecheck check clean
+.PHONY: install run test lint format typecheck check clean \
+        bandit pip-audit sbom licenses security
 
 install:
-	uv sync --locked
+	uv sync --locked --all-groups
 
 run:
 	uv run uvicorn app.main:app --reload
@@ -25,7 +25,40 @@ integration:
 coverage:
 	uv run pytest --cov=app --cov-report=html
 
-check: lint typecheck unit
+
+
+# Security
+
+bandit:
+	uv run bandit \
+		-r app \
+		-f json \
+		-o bandit-report.json
+
+pip-audit:
+	uv run pip-audit \
+		-f json \
+		-o pip-audit-report.json
+
+sbom:
+	uv run cyclonedx-py environment \
+		-o sbom.json
+
+licenses:
+	uv run pip-licenses \
+		--format=markdown \
+		--output-file licenses.md
+
+
+security: bandit pip-audit sbom licenses
+
+
+check:
+	$(MAKE) lint
+	$(MAKE) typecheck
+	$(MAKE) unit
+	$(MAKE) security
+
 
 clean:
 	find . -type d -name "__pycache__" -exec rm -rf {} +
@@ -33,6 +66,7 @@ clean:
 	find . -type d -name ".pytest_cache" -exec rm -rf {} +
 	find . -type d -name ".mypy_cache" -exec rm -rf {} +
 	find . -type d -name ".ruff_cache" -exec rm -rf {} +
+
 
 pre-commit:
 	uv run pre-commit run --all-files

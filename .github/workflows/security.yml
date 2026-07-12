@@ -29,43 +29,56 @@ jobs:
 
             - name: Install Dependencies
               run: |
-                uv pip install bandit pip-audit cyclonedx-bom pip-licenses
+                uv sync --locked --all-groups
+
+
 
             # Secret Scanning
+
             - name: Gitleaks
               uses: gitleaks/gitleaks-action@v2
+              env:
+                GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+
 
             # Static Analysis
+
             - name: Bandit
               run: |
-                bandit -r src -f txt
+                make bandit
+
+
 
             # Dependency Vulnerabilities
-            - name: pip-audit
+
+            - name: Dependency audit
               run: |
-                pip-audit
+                make pip-audit
+
+
 
             # SBOM
+
             - name: Generate SBOM
               run: |
-                cyclonedx-py environment -o sbom.json
+                make sbom
 
-            - name: Upload SBOM
-              uses: actions/upload-artifact@v4
-              with:
-                name: sbom
-                path: sbom.json
 
             # License Report
             - name: Generate License Report
               run: |
-                pip-licenses --format=markdown > licenses.md
+                make licenses
 
             - name: Upload License Report
               uses: actions/upload-artifact@v4
               with:
-                name: licenses
-                path: licenses.md
+                name: security-reports
+                path: |
+                    bandit-report.json
+                    pip-audit-report.json
+                    sbom.json
+                    licenses.md
 
     codeql:
         name: CodeQL Analysis
@@ -77,9 +90,18 @@ jobs:
         runs-on: ubuntu-latest
 
         steps:
-            - uses: actions/checkout@v4
+            - name: Checkout Repository
+              uses: actions/checkout@v4
 
-            - uses: github/codeql-action/init@v3
+            - name: Setup Python
+              uses: ./.github/actions/setup-python
+
+            - name: Install Dependencies
+              run: |
+                uv sync --locked --all-groups
+
+            - name: Initialize CodeQL
+              uses: github/codeql-action/init@v3
               with:
                 language: python
 
@@ -88,14 +110,16 @@ jobs:
             - uses: github/codeql-action/analyze@v3
 
     notify:
-        needs: security
+        needs: 
+            - security
+            - codeql
 
         if: always()
 
         uses: ./.github/workflows/notification.yml
         with:
             status: ${{ needs.security.result }}
-            environment: Developmwnt
+            environment: Development
             title: Security Scan
             message: Security workflow completed
         secrets: inherit
