@@ -85,7 +85,7 @@ jobs:
               with:
                 image-ref: ${{ steps.meta.outputs.tags }}
                 format: sarif
-                output: trivy-results.sarif
+                output: trivy-vulnerability.sarif
                 severity: HIGH,CRITICAL
                 ignore-unfixed: true
                 exit-code: "1"
