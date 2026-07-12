@@ -57,7 +57,7 @@ jobs:
 
              # Scan Image
             - name: Scan Docker Image
-              uses: aquasecurity/trivy-action@0.28.0
+              uses: aquasecurity/trivy-action@v0.36.0
               with:
                 image-ref: ghcr.io/${{ github.repository }}:sha-${{ github.sha }}
                 format: sarif
@@ -114,3 +114,22 @@ jobs:
 
                 cache-from: type=gha
                 cache-to: type=gha,mode=max
+
+
+    notify:
+        needs: push
+
+        if: always()
+
+        uses: ./.github/workflows/notifications.yml
+
+        with:
+            status: ${{ needs.push.result }}
+
+            environment: Development
+
+            title: Docker Build
+
+            message: Docker image published successfully.
+
+        secrets: inherit

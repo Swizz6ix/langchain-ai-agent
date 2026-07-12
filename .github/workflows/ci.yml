@@ -25,6 +25,12 @@ jobs:
       - name: Check Formatting
         run: make format
 
+      - name: Debug workspace
+        run: |
+          pwd
+          ls -la
+          find . -maxdepth 2 -type d
+
       - name: Type Check
         run: make typecheck
 
@@ -45,6 +51,18 @@ jobs:
 
       - name: Run pre-commit
         run: make pre-commit
+
+  notify:
+    needs: build
+    if: always()
+
+    uses: ./.github/workflows/notification.yml
+    with:
+      status: ${{ needs.build.result }}
+      environment: Develoment
+      title: CI Pipeline
+      message: Continuous Integration pipeline completed
+    secrets: inherit
 
 permissions:
   contents: read

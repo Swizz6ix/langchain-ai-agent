@@ -14,10 +14,9 @@ env:
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
-#################################################
-# Create Release
-#################################################
 
+
+# Create Release
   release:
     runs-on: ubuntu-latest
 
@@ -39,19 +38,15 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
 
-      #################################################
-      # Pull Existing SHA Image
-      #################################################
 
+      # Pull Existing SHA Image
       - name: Get Commit SHA
         id: sha
         run: |
           echo "SHA=${GITHUB_SHA}" >> $GITHUB_OUTPUT
 
-      #################################################
-      # Promote Existing Image
-      #################################################
 
+      # Promote Existing Image
       - name: Promote Docker Image
         run: |
           IMAGE="ghcr.io/${{ github.repository }}"
@@ -74,10 +69,8 @@ jobs:
 
 
 
-#################################################
-# GitHub Release
-#################################################
 
+# GitHub Release
   github-release:
 
     needs: release
@@ -108,3 +101,22 @@ jobs:
             ${{ steps.changelog.outputs.changelog }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  notify:
+    needs: github-release
+
+    if: always()
+
+    uses: ./.github/workflows/notifications.yml
+
+    with:
+
+        status: ${{ needs.github-release.result }}
+
+        environment: Production
+
+        title: Release Published
+
+        message: Version released successfully.
+
+    secrets: inherit

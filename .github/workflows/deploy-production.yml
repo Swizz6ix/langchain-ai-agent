@@ -61,3 +61,17 @@ jobs:
                 cd ~/app/docker
 
                 ./rollback.sh
+
+  notify:
+    needs: deploy
+    if: always()
+
+    uses: ./.github/workflows/notifications.yml
+
+    with:
+      status: ${{ needs.deploy.result }}
+      environment: Production
+      title: Production Deployment
+      message: Application deployment completed.
+      
+    secrets: inherit

@@ -25,7 +25,7 @@ integration:
 coverage:
 	uv run pytest --cov=app --cov-report=html
 
-check: lint typecheck test
+check: lint typecheck unit
 
 clean:
 	find . -type d -name "__pycache__" -exec rm -rf {} +
