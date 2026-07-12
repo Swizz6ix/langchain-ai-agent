@@ -1,0 +1,57 @@
+name: Telegram Notification
+
+description: Send deployment notification to Telegram
+
+inputs:
+
+  status:
+    required: true
+
+  environment:
+    required: true
+
+  title:
+    required: true
+
+  message:
+    required: true
+
+  repository:
+    required: true
+
+  workflow:
+    required: true
+
+  actor:
+    required: true
+
+  branch:
+    required: true
+
+  sha:
+    required: true
+
+  run-number:
+    required: true
+
+  run-id:
+    required: true
+
+runs:
+  using: composite
+
+  steps:
+    - shell: bash
+      env:
+        INPUT_STATUS: ${{ inputs.status }}
+        INPUT_ENVIRONMENT: ${{ inputs.environment }}
+        INPUT_TITLE: ${{ inputs.title }}
+        INPUT_MESSAGE: ${{ inputs.message }}
+        INPUT_REPOSITORY: ${{ inputs.repository }}
+        INPUT_WORKFLOW: ${{ inputs.workflow }}
+        INPUT_ACTOR: ${{ inputs.actor }}
+        INPUT_BRANCH: ${{ inputs.branch }}
+        INPUT_SHA: ${{ inputs.sha }}
+        INPUT_RUN_NUMBER: ${{ inputs.run-number }}
+        INPUT_RUN_ID: ${{ inputs.run-id }}
+      run: ${{ github.action_path }}/send.sh

@@ -1,0 +1,88 @@
+name: Security
+
+on:
+    pull_request:
+        branches:
+            - main
+
+    push:
+        branches:
+            - main
+
+    schedule:
+        - cron: "0 2 * * 1" 
+
+permissions:
+    contents: read
+    security-events: write
+
+jobs:
+    security:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout Repository
+              uses: actions/checkout@v4
+
+            - name: Setup Python
+              uses: ./.github/actions.setup-python
+
+            - name: Install Dependencies
+              run: |
+                uv pip install bandit pip-audit cyclonedx-bom pip-licenses
+
+            # Secret Scanning
+            - name: Gitleaks
+              uses: gitleaks/gitleaks-action@v2
+
+            # Static Analysis
+            - name: Bandit
+              run: |
+                bandit -r src -f txt
+
+            # Dependency Vulnerabilities
+            - name: pip-audit
+              run: |
+                pip-audit
+
+            # SBOM
+            - name: Generate SBOM
+              run: |
+                cyclonedx-py environment -o sbom.json
+
+            - name: Upload SBOM
+              uses: actions/upload-artifact@v4
+              with:
+                name: sbom
+                path: sbom.json
+
+            # License Report
+            - name: Generate License Report
+              run: |
+                pip-licenses --format=markdown > licenses.md
+
+            - name: Upload License Report
+              uses: actions/upload-artifact@v4
+              with:
+                name: licenses
+                path: licenses.md
+
+    codeql:
+        name: CodeQL Analysis
+
+        permissions:
+            security-events: write
+            contents: read
+
+        runs-on: ubuntu-latest
+
+        steps:
+            - uses: actions/checkout@v4
+
+            - uses: github/codeql-action/init@v3
+              with:
+                language: python
+
+            - uses: github/codeql-action/autobuild@v3
+
+            - uses: github/codeql-action/analyze@v3

@@ -1,0 +1,50 @@
+name: Continuous Integration
+
+on:
+  pull_request:
+    branches:
+      - main
+
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: ./.github/actions/setup-python
+
+      - name: Lint
+        run: make lint
+        
+      - name: Check Formatting
+        run: make format
+
+      - name: Type Check
+        run: make typecheck
+
+      - name: Unit Tests
+        run: make unit
+
+      - name: Integration Tests
+        run: make integration
+
+      - name: Coverage
+        run: make coverage
+
+      - name: Upload Coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: htmlcov
+
+      - name: Run pre-commit
+        run: make pre-commit
+
+permissions:
+  contents: read

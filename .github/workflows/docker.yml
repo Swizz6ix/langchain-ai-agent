@@ -1,0 +1,116 @@
+name: Docker
+
+on:
+    pull_request:
+        branches:
+            - main
+
+    push:
+        branches:
+            - main
+
+permissions:
+    contents: read
+    packages: write
+    security-events: write
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        outputs:
+            image: ${{ steps.meta.outputs.tags }}
+
+        steps:
+            - name: Checkout Repository
+              uses: actions/checkout@v4
+
+            - name: Set up Docker Buildx
+              uses: docker/setup-buildx-action@v3
+            
+            - name: Extract Docker metadata
+              id: meta
+              uses: docker/metadata-action@v5
+              with:
+                images: ghcr.io/${{ github.repository }}
+                tags: |
+                    type=sha
+                    type=ref,event=branch
+                    type=ref,event=tag
+                    type=semver,pattern={{version}}
+                    type=semver,pattern={{major}}.{{minor}}
+                    type=semver,pattern={{major}}
+
+            - name: Build Docker Image
+              uses: docker/build-push-action@v6
+              with:
+                context: .
+                file: Dockerfile
+                load: true
+                tags: ${{ steps.meta.outputs.tags }}
+                labels: ${{ steps.meta.outputs.labels }}
+
+                cache-from: type=gha
+                cache-to: type=gha,mode=max
+
+                provenance: true
+                sbom: true
+
+             # Scan Image
+            - name: Scan Docker Image
+              uses: aquasecurity/trivy-action@0.28.0
+              with:
+                image-ref: ghcr.io/${{ github.repository }}:sha-${{ github.sha }}
+                format: sarif
+                output: trivy-results.sarif
+                severity: HIGH,CRITICAL
+                ignore-unfixed: true
+                exit-code: "1"
+
+            - name: Upload Trivy Report
+              uses: github/codeql-action/upload-sarif@v3
+              with:
+                sarif_file: trivy-results.sarif
+                
+    # push Image
+    push:
+        needs: build
+        if: github.event_name == 'push'
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout Repository 
+              uses: actions/checkout@v4
+
+            - name: Set up Docker Buildx
+              uses: docker/setup-buildx-action@v3
+
+            - name: Log in to Github Container Registry
+              uses: ./.github/actions/ghcr-login
+              with:
+                username: ${{ github.actor }}
+                password: ${{ secrets.GITHUB_TOKEN }}
+
+            - name: Extract Docker metadata
+              id: meta
+              uses: docker/metadata-action@v5
+              with:
+                images: ghcr.io/${{ github.repository }}
+                tags: |
+                    type=sha
+                    type=ref,event=branch
+                    type=ref,event=tag
+                    type=semver,pattern={{version}}
+                    type=semver,pattern={{major}}.{{minor}}
+                    type=semver,pattern={{major}}
+
+            - name: Build and push Docker Image
+              uses: docker/build-push-action@v6
+              with:
+                context: .
+                file: Dockerfile
+                push: true
+                tags: ${{ steps.meta.outputs.tags }}
+                labels: ${{ steps.meta.outputs.labels }}
+
+                cache-from: type=gha
+                cache-to: type=gha,mode=max

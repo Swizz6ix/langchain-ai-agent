@@ -1,0 +1,69 @@
+name: Deploy Application
+
+on:
+    workflow_call:
+        inputs:
+            environment:
+                required: true
+                type: string
+
+            image_tag:
+                required: true
+                type: string
+
+        secrets:
+            HOST:
+                required: true
+
+            USER:
+                required: true
+            
+            SSH_KEY:
+                required: true
+
+permissions:
+    contents: read
+    packages: read
+
+jobs:
+    deploy:
+
+        runs-on: ubuntu-latest
+
+        environment:
+            name: ${{ inputs.environment }}
+
+        steps:
+            - name: Checkout Repository
+              uses: actions/checkout@v4
+
+            - name: Copy deployment files
+              uses: appleboy/scp-action@v0.1.7
+              with:
+                host: ${{ secrets.HOST }}
+                username: ${{ secrets.SSH_KEY }}
+                key: ${{ secrets.SSH_KEY }}
+                source: docker/
+                target: ~/app
+
+            - name: Deploy
+              uses: appleboy/ssh-action@v1.2.0
+              with:
+                host: ${{ secrets.HOST }}
+                username: ${{ secrets.USER }}
+                key: ${{ secrets.SSH_KEY }}
+                
+                script: |
+                    cd ~/app/docker
+                    
+                    docker login ghcr.io \
+                        -u ${{ secrets.GHCR_USERNAME }} \
+                        -p ${{ secrets.GHCR_TOKEN }}
+
+                    chmod +x deploy.sh
+                    
+                    ./deploy.sh \
+                    ghcr.io/${{ github.repository }} \
+                    ${{ inputs.image_tag }}
+                    https://${{ inputs.environment }}.example.com \
+                    https://${{ inputs.environment }}.example.com

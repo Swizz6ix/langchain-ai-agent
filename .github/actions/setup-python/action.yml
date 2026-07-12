@@ -1,0 +1,29 @@
+name: Setup Python Environment
+description: Setup Python with uv
+
+inputs:
+  python-version:
+    required: false
+    default: "3.13"
+
+runs:
+  using: composite
+
+  steps:
+    - name: Setup Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ inputs.python-version }}
+
+    - name: Install uv
+      uses: astral-sh/setup-uv@v5
+
+    - name: Cache Dependencies
+      uses: actions/cache@v4
+      with:
+        path: ~/.cache/uv
+        key: uv-${{ runner.os }}-py313${{ hashFiles('uv.lock') }}
+
+    - name: Install dependencies
+      shell: bash
+      run: uv sync
