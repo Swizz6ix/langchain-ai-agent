@@ -41,7 +41,6 @@ jobs:
       - name: Telegram Notification
         if: always()
         continue-on-error: true
-
         uses: ./.github/actions/telegram-notify
 
         with:

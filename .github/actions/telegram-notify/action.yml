@@ -41,6 +41,10 @@ runs:
   using: composite
 
   steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+
     - shell: bash
       env:
         INPUT_STATUS: ${{ inputs.status }}
@@ -54,4 +58,6 @@ runs:
         INPUT_SHA: ${{ inputs.sha }}
         INPUT_RUN_NUMBER: ${{ inputs.run-number }}
         INPUT_RUN_ID: ${{ inputs.run-id }}
-      run: ${{ github.action_path }}/send.sh
+      run: |
+        chmod +x "${{ github.action_path }}/send.sh"
+        bash "${{ github.action_path }}/send.sh"
