@@ -4,6 +4,11 @@ version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.13"
+authors = [
+    {name = "Charles Ferdinand"}
+]
+license = "MIT"
+
 dependencies = [
     "fastapi>=0.139.0",
     "langchain>=1.3.12",
@@ -48,10 +53,4 @@ source = ["app"]
 show_missing = true
 skip_empty = true
 fail_under = 90
-
-
-authors = [
-    {name = "Charles Ferdinand"}
-]
-
-license = "MIT"
+skip_covered = true

@@ -23,7 +23,7 @@ integration:
 	uv run pytest tests/integration
 
 coverage:
-	uv run pytest --cov=app --cov-report=html
+	uv run pytest --cov=app --cov-report=term-missing --cov-report=html
 
 
 

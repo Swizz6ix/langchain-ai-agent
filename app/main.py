@@ -6,10 +6,3 @@ app = FastAPI(
 )
 
 app.include_router(health_router)
-
-def main() -> None:
-    print("Hello from langchain-ai-agent!")
-
-
-if __name__ == "__main__":
-    main()

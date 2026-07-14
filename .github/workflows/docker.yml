@@ -50,7 +50,12 @@ jobs:
               shell: bash
               run: |
                 echo "IMAGE_NAME=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')" >> "GITHUB_ENV"
-
+            
+            - name: Debug image name
+              run: |
+                echo "Repo: ${{ github.repository }}"
+                echo "Output: '${{ env.IMAGE_NAME }}"
+            
             # Metadata
             - name: Extract Docker metadata
               id: meta
@@ -65,6 +70,11 @@ jobs:
                     type=semver,pattern={{major}}.{{minor}}
                     type=semver,pattern={{major}}
                 
+            - name: Debug image name
+              run: |
+                echo "Repo2: ${{ github.repository }}"
+                echo "Output2: '${{ env.IMAGE_NAME }}"
+            
             # build image
             - name: Build Docker Image
               uses: docker/build-push-action@v6
