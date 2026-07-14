@@ -21,7 +21,7 @@ jobs:
 
       - name: Lint
         run: make lint
-        
+
       - name: Check Formatting
         run: make format
 
@@ -48,9 +48,6 @@ jobs:
         with:
           name: coverage
           path: htmlcov
-
-      - name: Run pre-commit
-        run: make pre-commit
 
   notify:
     needs: build

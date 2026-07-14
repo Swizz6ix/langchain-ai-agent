@@ -2,15 +2,26 @@ repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.12.2
     hooks:
-      - pass_filenames: true
       - id: ruff
+        args:
+          - --fix
+        pass_filenames: true
+
       - id: ruff-format
+        pass_filenames: true
+
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v5.0.0
     hooks:
-      - pass_filenames: true
       - id: check-yaml
+        pass_filenames: true
+
       - id: check-json
+        pass_filenames: true
+
       - id: trailing-whitespace
+        pass_filenames: true
+
       - id: end-of-file-fixer
+        pass_filenames: true

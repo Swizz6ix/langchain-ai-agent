@@ -2,7 +2,7 @@ name: Deploy Production
 
 
 on:
-    
+
   workflow_dispatch:
 
     inputs:
@@ -73,5 +73,5 @@ jobs:
       environment: Production
       title: Production Deployment
       message: Application deployment completed.
-      
+
     secrets: inherit

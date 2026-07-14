@@ -17,7 +17,7 @@ on:
 
             USER:
                 required: true
-            
+
             SSH_KEY:
                 required: true
 
@@ -52,16 +52,16 @@ jobs:
                 host: ${{ secrets.HOST }}
                 username: ${{ secrets.USER }}
                 key: ${{ secrets.SSH_KEY }}
-                
+
                 script: |
                     cd ~/app/docker
-                    
+
                     docker login ghcr.io \
                         -u ${{ secrets.GHCR_USERNAME }} \
                         -p ${{ secrets.GHCR_TOKEN }}
 
                     chmod +x deploy.sh
-                    
+
                     ./deploy.sh \
                     ghcr.io/${{ github.repository }} \
                     ${{ inputs.image_tag }}

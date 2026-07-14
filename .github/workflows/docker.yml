@@ -30,6 +30,11 @@ jobs:
             image: ${{ steps.image.outputs.image }}
 
         steps:
+            - name: Lowercase image name
+              run: |
+                echo "IMAGE_NAME=${IMAGE_NAME,,}" >> $GITHUB_ENV
+
+
             - name: Checkout Repository
               uses: actions/checkout@v4
 
@@ -42,20 +47,7 @@ jobs:
             # Dockerfile Security
             - name: Lint Dockerfile
               uses: hadolint/hadolint-action@v3.1.0
-            
 
-              # Covert to lower case
-            - name: Normalize image name
-              id: image-name
-              shell: bash
-              run: |
-                echo "IMAGE_NAME=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')" >> "GITHUB_ENV"
-            
-            - name: Debug image name
-              run: |
-                echo "Repo: ${{ github.repository }}"
-                echo "Output: '${{ env.IMAGE_NAME }}"
-            
             # Metadata
             - name: Extract Docker metadata
               id: meta
@@ -69,12 +61,7 @@ jobs:
                     type=semver,pattern={{version}}
                     type=semver,pattern={{major}}.{{minor}}
                     type=semver,pattern={{major}}
-                
-            - name: Debug image name
-              run: |
-                echo "Repo2: ${{ github.repository }}"
-                echo "Output2: '${{ env.IMAGE_NAME }}"
-            
+
             # build image
             - name: Build Docker Image
               uses: docker/build-push-action@v6
@@ -83,7 +70,7 @@ jobs:
                 file: Dockerfile
                 load: true
                 tags: |
-                    ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+                    ${{ steps.meta.outputs.tags }}
                 labels: ${{ steps.meta.outputs.labels }}
 
                 cache-from: type=gha
@@ -103,13 +90,13 @@ jobs:
               run: |
                 echo "image=ghcr.io/$(echo '${{ env.IMAGE_NAME }}' | tr '[:upper:]' '[:lower:]'):${{ env.IMAGE_TAG }}"  >> $GITHUB_OUTPUT
 
-            
+
             # Save Docker image
             - name: Save Docker image
               run: |
                 docker save ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} -o docker-image.tar
 
-            
+
             # Upload image artifact
             - name: Upload Docker image artifact
               uses: actions/upload-artifact@v4
@@ -122,7 +109,7 @@ jobs:
 
     docker-scan:
         name: Scan Docker Image
-        needs: 
+        needs:
             docker-build
 
         runs-on:
@@ -150,8 +137,8 @@ jobs:
                 ignore-unfixed: true
                 exit-code: "1"
 
-            
-                # Trivy Misconfiguration   
+
+                # Trivy Misconfiguration
             - name: Trivy Configuration Scan
               uses: aquasecurity/trivy-action@v0.36.0
               with:
@@ -162,7 +149,7 @@ jobs:
                 severity: HIGH,CRITICAL
                 exit-code: "1"
 
-            
+
             # Upload Security Reports
             - name: Upload Trivy Vulnerability Report
               if: always() && hashFiles('trivy-vulnerability.sarif') != ''
@@ -187,12 +174,12 @@ jobs:
                     trivy-vulnerability.sarif
                     trivy-config.sarif
 
-                
+
     # push Image
     docker-push:
         name: Push Image to GHCR
 
-        needs: 
+        needs:
             - docker-build
             - docker-scan
 
@@ -244,7 +231,7 @@ jobs:
 
 
     notify:
-        needs: 
+        needs:
             - docker-build
             - docker-scan
             - docker-push

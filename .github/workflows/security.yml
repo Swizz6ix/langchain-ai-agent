@@ -10,7 +10,7 @@ on:
             - main
 
     schedule:
-        - cron: "0 2 * * 1" 
+        - cron: "0 2 * * 1"
 
 permissions:
     contents: read
@@ -109,7 +109,7 @@ jobs:
               uses: github/codeql-action/analyze@v3
 
     notify:
-        needs: 
+        needs:
             - security
             - codeql
 
