@@ -44,6 +44,13 @@ jobs:
               uses: hadolint/hadolint-action@v3.1.0
             
 
+              # Covert to lower case
+            - name: Normalize image name
+              id: image-name
+              shell: bash
+              run: |
+                echo "IMAGE_NAME=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')" >> "GITHUB_ENV"
+
             # Metadata
             - name: Extract Docker metadata
               id: meta
@@ -57,15 +64,6 @@ jobs:
                     type=semver,pattern={{version}}
                     type=semver,pattern={{major}}.{{minor}}
                     type=semver,pattern={{major}}
-
-            # Covert to lower case
-            - name: Normalize image name
-              id: image-name
-              shell: bash
-              run: |
-                IMAGE_NAME=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
-                echo "image_name=$IMAGE_NAME" >> "GITHUB_OUTPUT"
-
                 
             # build image
             - name: Build Docker Image
@@ -75,7 +73,7 @@ jobs:
                 file: Dockerfile
                 load: true
                 tags: |
-                    ${{ env.REGISTRY }}/${{ steps.image-name.outputs.image_name }}:test
+                    ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
                 labels: ${{ steps.meta.outputs.labels }}
 
                 cache-from: type=gha
@@ -93,16 +91,13 @@ jobs:
             - name: Set image ouput
               id: image
               run: |
-                echo "image=${{ env.REGISTRY }}/${{ steps.image-name.outputs.image_name }}:\
-                ${{ env.IMAGE_TAG }}"  >> $GITHUB_OUTPUT
+                echo "image=ghcr.io/$(echo '${{ env.IMAGE_NAME }}' | tr '[:upper:]' '[:lower:]'):${{ env.IMAGE_TAG }}"  >> $GITHUB_OUTPUT
 
             
             # Save Docker image
             - name: Save Docker image
               run: |
-                docker save \
-                    ${{ env.REGISTRY }}/${{ steps.image-name.outputs.image_name }}:\
-                    ${{ env.IMAGE_TAG }} -o docker-image.tar
+                docker save ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} -o docker-image.tar
 
             
             # Upload image artifact
@@ -154,19 +149,19 @@ jobs:
                 hide-progress: true
                 format: sarif
                 output: trivy-config.sarif
-                severity: trivy-config.sarif
+                severity: HIGH,CRITICAL
                 exit-code: "1"
 
             
             # Upload Security Reports
             - name: Upload Trivy Vulnerability Report
-              if: always() && hashFiles('trivy-vulnerability') != ''
+              if: always() && hashFiles('trivy-vulnerability.sarif') != ''
               uses: github/codeql-action/upload-sarif@v3
               with:
                 sarif_file: trivy-vulnerability.sarif
 
             - name: Upload Trivy Config Results
-              if: always() && hashFiles('trivy-vulnerability') != ''
+              if: always() && hashFiles('trivy-config.sarif') != ''
               uses: github/codeql-action/upload-sarif@v3
               with:
                 sarif_file: trivy-config.sarif
@@ -212,7 +207,7 @@ jobs:
               id: meta
               uses: docker/metadata-action@v5
               with:
-                images: ghcr.io/${{ github.repository }}
+                images: ghcr.io/${{ env.IMAGE_NAME }}
                 tags: |
                     type=sha
                     type=ref,event=branch
