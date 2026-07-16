@@ -95,7 +95,7 @@ jobs:
             # Save Docker image
             - name: Save Docker image
               run: |
-                IMAGE:$(echo "${{ steps.meta.outputs.tags }}" | head -n1)
+                IMAGE=$(echo "${{ steps.meta.outputs.tags }}" | head -n1)
                 docker save "$IMAGE" -o docker-image.tar
 
 
