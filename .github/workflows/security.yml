@@ -101,7 +101,8 @@ jobs:
             - name: Initialize CodeQL
               uses: github/codeql-action/init@v3
               with:
-                language: python
+                languages: python
+                build-mode: none
 
             - name: Perform CodeQL Analysis
               uses: github/codeql-action/analyze@v3
@@ -115,7 +116,7 @@ jobs:
 
         uses: ./.github/workflows/notifications.yml
         with:
-            status: ${{ needs.security.result }}
+            status: ${{ needs.security.result == 'success' && needs.codeql.result == 'success' && 'success' || 'failure' }}
             environment: ${{ github.head_ref || github.ref_name }}
             title: Security Scan
             message: Security workflow completed
