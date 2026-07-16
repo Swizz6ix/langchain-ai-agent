@@ -124,15 +124,20 @@ jobs:
                 name: docker-image
 
             - name: Load Docker image
+              id: load-image
               run: |
-                docker load -i docker-image.tar
+                LOAD_OUTPUT=$(docker load -i docker-image.tar)
+                echo "$LOAD_OUTPUT"
+
+                IMAGE_REF=$(echo "$LOAD_OUTPUT" |grep -oE "Loaded image: \S+" | cut -d' ' -f3)
+                echo "image_ref=$IMAGE_REF" >> $GITHUB_OUTPUT
 
             # Scan Image for vulnerability scan
             - name: Scan Docker Image
               uses: aquasecurity/trivy-action@v0.36.0
               with:
                 image-ref: |
-                    ${{ needs.docker-build.outputs.image }}
+                    ${{ steps.load-image.outputs.image_ref }}
                 format: sarif
                 output: trivy-vulnerability.sarif
                 severity: HIGH,CRITICAL
