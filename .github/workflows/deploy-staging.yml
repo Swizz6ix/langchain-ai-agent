@@ -33,3 +33,15 @@ jobs:
       GHCR_USERNAME: ${{ secrets.GHCR_USERNAME }}
 
       GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
+
+
+  notify:
+        needs: deploy
+        if: always()
+        uses: ./.github/workflows/notifications.yml
+        with:
+            status: ${{ needs.deploy.result }}
+            environment: Staging
+            title: Staging Deployment
+            message: Application staging completed.
+        secrets: inherit

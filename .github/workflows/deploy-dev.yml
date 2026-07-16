@@ -23,3 +23,14 @@ jobs:
             SSH_KEY: ${{ secrets.DEV_SSH_KEY }}
             GHCR_USERNAME: ${{ secrets.GHCR_USERNAME }}
             GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
+
+    notify:
+        needs: deploy
+        if: always()
+        uses: ./.github/workflows/notifications.yml
+        with:
+            status: ${{ needs.deploy.result }}
+            environment: Development
+            title: Development Deployment
+            message: Application deployment completed.
+        secrets: inherit

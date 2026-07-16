@@ -2,8 +2,6 @@ name: Security
 
 on:
     pull_request:
-        branches:
-            - main
 
     push:
         branches:
@@ -115,10 +113,10 @@ jobs:
 
         if: always()
 
-        uses: ./.github/workflows/notification.yml
+        uses: ./.github/workflows/notifications.yml
         with:
             status: ${{ needs.security.result }}
-            environment: Development
+            environment: ${{ github.head_ref || github.ref_name }}
             title: Security Scan
             message: Security workflow completed
         secrets: inherit

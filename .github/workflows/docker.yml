@@ -4,10 +4,14 @@ on:
     pull_request:
         branches:
             - main
+            - staging
+            - develop
 
     push:
         branches:
             - main
+            - staging
+            - develop
 
     workflow_dispatch:
 
@@ -246,7 +250,7 @@ jobs:
 
         if: always()
 
-        uses: ./.github/workflows/notification.yml
+        uses: ./.github/workflows/notifications.yml
 
         with:
             status: |
@@ -254,7 +258,7 @@ jobs:
                 scan:${{ needs.docker-scan.result }}
                 push:${{ needs.docker-push.result }}
 
-            environment: Development
+            environment: ${{ github.head_ref || github.ref_name }}
 
             title: Docker Pipeline
 
