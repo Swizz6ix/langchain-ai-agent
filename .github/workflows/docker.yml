@@ -136,8 +136,7 @@ jobs:
             - name: Scan Docker Image
               uses: aquasecurity/trivy-action@v0.36.0
               with:
-                image-ref: |
-                    ${{ steps.load-image.outputs.image_ref }}
+                image-ref: ${{ steps.load-image.outputs.image_ref }}
                 format: sarif
                 output: trivy-vulnerability.sarif
                 severity: HIGH,CRITICAL
