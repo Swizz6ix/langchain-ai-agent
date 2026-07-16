@@ -21,6 +21,12 @@ on:
             SSH_KEY:
                 required: true
 
+            GHCR_USERNAME:
+                required: true
+
+            GHCR_TOKEN:
+                required: true
+
 permissions:
     contents: read
     packages: read
@@ -41,7 +47,7 @@ jobs:
               uses: appleboy/scp-action@v0.1.7
               with:
                 host: ${{ secrets.HOST }}
-                username: ${{ secrets.SSH_KEY }}
+                username: ${{ secrets.USER }}
                 key: ${{ secrets.SSH_KEY }}
                 source: docker/
                 target: ~/app
