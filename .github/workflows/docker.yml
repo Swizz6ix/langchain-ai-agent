@@ -206,7 +206,7 @@ jobs:
               uses: ./.github/actions/ghcr-login
               with:
                 username: ${{ github.actor }}
-                password: ${{ secrets.GITHUB_TOKEN }}
+                token: ${{ secrets.GITHUB_TOKEN }}
 
             - name: Extract Docker metadata
               id: meta
