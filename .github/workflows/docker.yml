@@ -21,6 +21,10 @@ permissions:
     security-events: write
     id-token: write
 
+concurrency:
+  group: docker-${{ github.ref }}
+  cancel-in-progress: true
+
 env:
     REGISTRY: ghcr.io
     IMAGE_NAME: ${{ github.repository }}
@@ -51,6 +55,9 @@ jobs:
             # Dockerfile Security
             - name: Lint Dockerfile
               uses: hadolint/hadolint-action@v3.1.0
+              with:
+                dockerfile: Dockerfile
+                failure-threshold: error 
 
             # Metadata
             - name: Extract Docker metadata
@@ -136,8 +143,21 @@ jobs:
                 IMAGE_REF=$(echo "$LOAD_OUTPUT" |grep -oE "Loaded image: \S+" | cut -d' ' -f3)
                 echo "image_ref=$IMAGE_REF" >> $GITHUB_OUTPUT
 
+            # Non-root Container Verification Step
+            - name: Verify Non-Root Execution Config
+              run: |
+                IMAGE="${{ steps.load-image.outputs.image_ref }}"
+                USER_VAL=$(docker inspect --format='{{.Config.User}}' "$IMAGE")
+                echo "Configured container user is: '$USER_VAL'"
+                if [ -z "$USER_VAL" ] || [ "$USER_VAL" = "root" ] || [ "$USER_VAL" = "0" ]; then
+                  echo "SECURITY FAILURE: Container is running as root (UID 0)!"
+                  exit 1
+                else
+                  echo "SUCCESS: Container is configured to run as non-root user: $USER_VAL"
+                fi
+
             # Scan Image for vulnerability scan
-            - name: Scan Docker Image
+            - name: Scan Docker Image (Vulnerabilities)
               uses: aquasecurity/trivy-action@v0.36.0
               with:
                 image-ref: ${{ steps.load-image.outputs.image_ref }}
@@ -153,6 +173,7 @@ jobs:
               uses: aquasecurity/trivy-action@v0.36.0
               with:
                 scan-type: config
+                scan-ref: .
                 hide-progress: true
                 format: sarif
                 output: trivy-config.sarif
@@ -203,8 +224,12 @@ jobs:
             - name: Checkout Repository
               uses: actions/checkout@v4
 
-            - name: Setupd\ Docker Buildx
+            - name: Setup Docker Buildx
               uses: docker/setup-buildx-action@v3
+
+          # Cosign Installation step
+            - name: Install Cosign
+              uses: sigstore/cosign-installer@v3.5.0
 
             - name: Log in to Github Container Registry
               uses: ./.github/actions/ghcr-login
@@ -226,6 +251,7 @@ jobs:
                     type=semver,pattern={{major}}
 
             - name: Build and Push Image
+              id: build-push
               uses: docker/build-push-action@v6
               with:
                 context: .
@@ -236,10 +262,17 @@ jobs:
                 cache-from: type=gha
                 cache-to: type=gha,mode=max
 
-
                 # Supply chain security
                 provenance: true
                 sbom: true
+
+          # Keyless Image Signing with Cosign
+            - name: Sign the pushed images
+              run: |
+                # Use the exact immutable SHA digest outputted by build-push action
+                IMAGE_DIGEST="ghcr.io/${{ env.IMAGE_NAME }}@${{ steps.build-push.outputs.digest }}"
+                echo "Signing image: $IMAGE_DIGEST"
+                cosign sign --yes "$IMAGE_DIGEST"
 
 
     notify:
