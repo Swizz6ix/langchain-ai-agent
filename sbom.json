@@ -1266,6 +1266,39 @@
       "version": "1.33"
     },
     {
+      "bom-ref": "jsonpath-python==1.1.6",
+      "description": "A lightweight and powerful JSONPath implementation for Python",
+      "externalReferences": [
+        {
+          "comment": "from packaging metadata Project-URL: Issues",
+          "type": "issue-tracker",
+          "url": "https://github.com/sean2077/jsonpath-python/issues"
+        },
+        {
+          "comment": "from packaging metadata Project-URL: Repository",
+          "type": "vcs",
+          "url": "https://github.com/sean2077/jsonpath-python"
+        },
+        {
+          "comment": "from packaging metadata Project-URL: Homepage",
+          "type": "website",
+          "url": "https://github.com/sean2077/jsonpath-python"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "acknowledgement": "declared",
+            "id": "MIT"
+          }
+        }
+      ],
+      "name": "jsonpath-python",
+      "purl": "pkg:pypi/jsonpath-python@1.1.6",
+      "type": "library",
+      "version": "1.1.6"
+    },
+    {
       "bom-ref": "jsonpointer==3.1.1",
       "description": "Identify specific nodes in a JSON document (RFC 6901) ",
       "externalReferences": [
@@ -1510,6 +1543,64 @@
       "purl": "pkg:pypi/langchain-core@1.4.9",
       "type": "library",
       "version": "1.4.9"
+    },
+    {
+      "bom-ref": "langchain-openrouter==0.2.6",
+      "description": "An integration package connecting OpenRouter and LangChain",
+      "externalReferences": [
+        {
+          "comment": "from packaging metadata Project-URL: Documentation",
+          "type": "documentation",
+          "url": "https://reference.langchain.com/python/integrations/langchain_openrouter/"
+        },
+        {
+          "comment": "from packaging metadata Project-URL: Issues",
+          "type": "issue-tracker",
+          "url": "https://github.com/langchain-ai/langchain/issues"
+        },
+        {
+          "comment": "from packaging metadata Project-URL: Slack",
+          "type": "other",
+          "url": "https://www.langchain.com/join-community"
+        },
+        {
+          "comment": "from packaging metadata Project-URL: Reddit",
+          "type": "other",
+          "url": "https://www.reddit.com/r/LangChain/"
+        },
+        {
+          "comment": "from packaging metadata Project-URL: Twitter",
+          "type": "other",
+          "url": "https://x.com/langchain_oss"
+        },
+        {
+          "comment": "from packaging metadata Project-URL: Changelog",
+          "type": "release-notes",
+          "url": "https://github.com/langchain-ai/langchain/releases?q=%22langchain-openrouter%22"
+        },
+        {
+          "comment": "from packaging metadata Project-URL: Repository",
+          "type": "vcs",
+          "url": "https://github.com/langchain-ai/langchain"
+        },
+        {
+          "comment": "from packaging metadata Project-URL: Homepage",
+          "type": "website",
+          "url": "https://docs.langchain.com/oss/python/integrations/providers/openrouter"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "acknowledgement": "declared",
+            "id": "MIT"
+          }
+        }
+      ],
+      "name": "langchain-openrouter",
+      "purl": "pkg:pypi/langchain-openrouter@0.2.6",
+      "type": "library",
+      "version": "0.2.6"
     },
     {
       "bom-ref": "langchain-protocol==0.0.18",
@@ -2038,6 +2129,29 @@
       "purl": "pkg:pypi/nodeenv@1.10.0",
       "type": "library",
       "version": "1.10.0"
+    },
+    {
+      "bom-ref": "openrouter==0.10.8",
+      "description": "Official Python Client SDK for OpenRouter.",
+      "externalReferences": [
+        {
+          "comment": "from packaging metadata Project-URL: repository",
+          "type": "vcs",
+          "url": "https://github.com/OpenRouterTeam/python-sdk.git"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "acknowledgement": "declared",
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "openrouter",
+      "purl": "pkg:pypi/openrouter@0.10.8",
+      "type": "library",
+      "version": "0.10.8"
     },
     {
       "bom-ref": "orjson==3.11.9",
@@ -2693,6 +2807,49 @@
       "version": "7.1.0"
     },
     {
+      "bom-ref": "pytest-mock==3.15.1",
+      "description": "Thin-wrapper around the mock package for easier use with pytest",
+      "externalReferences": [
+        {
+          "comment": "from packaging metadata Project-URL: Documentation",
+          "type": "documentation",
+          "url": "https://pytest-mock.readthedocs.io/en/latest/"
+        },
+        {
+          "comment": "from packaging metadata Project-URL: Tracker",
+          "type": "issue-tracker",
+          "url": "https://github.com/pytest-dev/pytest-mock/issues"
+        },
+        {
+          "comment": "from packaging metadata Project-URL: Source",
+          "type": "other",
+          "url": "https://github.com/pytest-dev/pytest-mock/"
+        },
+        {
+          "comment": "from packaging metadata Project-URL: Changelog",
+          "type": "release-notes",
+          "url": "https://pytest-mock.readthedocs.io/en/latest/changelog.html"
+        },
+        {
+          "comment": "from packaging metadata Project-URL: Homepage",
+          "type": "website",
+          "url": "https://github.com/pytest-dev/pytest-mock/"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "acknowledgement": "declared",
+            "id": "MIT"
+          }
+        }
+      ],
+      "name": "pytest-mock",
+      "purl": "pkg:pypi/pytest-mock@3.15.1",
+      "type": "library",
+      "version": "3.15.1"
+    },
+    {
       "bom-ref": "python-dateutil==2.9.0.post0",
       "description": "Extensions to the standard Python datetime module",
       "externalReferences": [
@@ -2849,6 +3006,27 @@
       "purl": "pkg:pypi/referencing@0.37.0",
       "type": "library",
       "version": "0.37.0"
+    },
+    {
+      "bom-ref": "regex==2026.7.10",
+      "description": "Alternative regular expression module, to replace re.",
+      "externalReferences": [
+        {
+          "comment": "from packaging metadata Project-URL: Homepage",
+          "type": "website",
+          "url": "https://github.com/mrabarnett/mrab-regex"
+        }
+      ],
+      "licenses": [
+        {
+          "acknowledgement": "declared",
+          "expression": "Apache-2.0 AND CNRI-Python"
+        }
+      ],
+      "name": "regex",
+      "purl": "pkg:pypi/regex@2026.7.10",
+      "type": "library",
+      "version": "2026.7.10"
     },
     {
       "bom-ref": "requests==2.34.2",
@@ -3121,6 +3299,29 @@
       "version": "0.15.21"
     },
     {
+      "bom-ref": "simpleeval==1.0.7",
+      "description": "A simple, safe single expression evaluator library.",
+      "externalReferences": [
+        {
+          "comment": "from packaging metadata Project-URL: Source code",
+          "type": "other",
+          "url": "https://github.com/danthedeckie/simpleeval"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "acknowledgement": "declared",
+            "id": "MIT"
+          }
+        }
+      ],
+      "name": "simpleeval",
+      "purl": "pkg:pypi/simpleeval@1.0.7",
+      "type": "library",
+      "version": "1.0.7"
+    },
+    {
       "bom-ref": "six==1.17.0",
       "description": "Python 2 and 3 compatibility utilities",
       "externalReferences": [
@@ -3285,6 +3486,29 @@
       "version": "5.9.0"
     },
     {
+      "bom-ref": "tavily-python==0.7.26",
+      "description": "Python wrapper for the Tavily API",
+      "externalReferences": [
+        {
+          "comment": "from packaging metadata: Home-page",
+          "type": "website",
+          "url": "https://github.com/tavily-ai/tavily-python"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "acknowledgement": "declared",
+            "id": "MIT"
+          }
+        }
+      ],
+      "name": "tavily-python",
+      "purl": "pkg:pypi/tavily-python@0.7.26",
+      "type": "library",
+      "version": "0.7.26"
+    },
+    {
       "bom-ref": "tenacity==9.1.4",
       "description": "Retry code until it succeeds",
       "externalReferences": [
@@ -3306,6 +3530,31 @@
       "purl": "pkg:pypi/tenacity@9.1.4",
       "type": "library",
       "version": "9.1.4"
+    },
+    {
+      "bom-ref": "tiktoken==0.13.0",
+      "description": "tiktoken is a fast BPE tokeniser for use with OpenAI's models",
+      "externalReferences": [
+        {
+          "comment": "from packaging metadata Project-URL: changelog",
+          "type": "release-notes",
+          "url": "https://github.com/openai/tiktoken/blob/main/CHANGELOG.md"
+        },
+        {
+          "comment": "from packaging metadata Project-URL: repository",
+          "type": "vcs",
+          "url": "https://github.com/openai/tiktoken"
+        },
+        {
+          "comment": "from packaging metadata Project-URL: homepage",
+          "type": "website",
+          "url": "https://github.com/openai/tiktoken"
+        }
+      ],
+      "name": "tiktoken",
+      "purl": "pkg:pypi/tiktoken@0.13.0",
+      "type": "library",
+      "version": "0.13.0"
     },
     {
       "bom-ref": "tomli==2.4.1",
@@ -3863,6 +4112,7 @@
       "dependsOn": [
         "pre_commit==4.6.0",
         "pytest-cov==7.1.0",
+        "pytest-mock==3.15.1",
         "pytest==9.1.1",
         "python-dateutil==2.9.0.post0",
         "tzdata==2026.3"
@@ -4022,6 +4272,14 @@
       "ref": "jsonpatch==1.33"
     },
     {
+      "dependsOn": [
+        "pytest-cov==7.1.0",
+        "pytest==9.1.1",
+        "ruff==0.15.21"
+      ],
+      "ref": "jsonpath-python==1.1.6"
+    },
+    {
       "ref": "jsonpointer==3.1.1"
     },
     {
@@ -4061,6 +4319,13 @@
         "uuid_utils==0.17.0"
       ],
       "ref": "langchain-core==1.4.9"
+    },
+    {
+      "dependsOn": [
+        "langchain-core==1.4.9",
+        "openrouter==0.10.8"
+      ],
+      "ref": "langchain-openrouter==0.2.6"
     },
     {
       "dependsOn": [
@@ -4133,6 +4398,9 @@
       "ref": "langsmith==0.10.2"
     },
     {
+      "dependsOn": [
+        "regex==2026.7.10"
+      ],
       "ref": "lark==1.3.1"
     },
     {
@@ -4185,6 +4453,15 @@
     },
     {
       "ref": "nodeenv==1.10.0"
+    },
+    {
+      "dependsOn": [
+        "httpcore==1.0.9",
+        "httpx==0.28.1",
+        "jsonpath-python==1.1.6",
+        "pydantic==2.13.4"
+      ],
+      "ref": "openrouter==0.10.8"
     },
     {
       "ref": "orjson==3.11.9"
@@ -4321,6 +4598,13 @@
     },
     {
       "dependsOn": [
+        "pre_commit==4.6.0",
+        "pytest==9.1.1"
+      ],
+      "ref": "pytest-mock==3.15.1"
+    },
+    {
+      "dependsOn": [
         "Pygments==2.20.0",
         "attrs==26.1.0",
         "colorama==0.4.6",
@@ -4343,6 +4627,7 @@
         "coverage==7.15.0",
         "filelock==3.29.7",
         "platformdirs==4.10.0",
+        "pytest-mock==3.15.1",
         "pytest==9.1.1"
       ],
       "ref": "python-discovery==1.4.4"
@@ -4360,6 +4645,9 @@
         "typing_extensions==4.16.0"
       ],
       "ref": "referencing==0.37.0"
+    },
+    {
+      "ref": "regex==2026.7.10"
     },
     {
       "dependsOn": [
@@ -4407,6 +4695,9 @@
       "ref": "ruff==0.15.21"
     },
     {
+      "ref": "simpleeval==1.0.7"
+    },
+    {
       "ref": "six==1.17.0"
     },
     {
@@ -4429,9 +4720,24 @@
     },
     {
       "dependsOn": [
+        "httpx==0.28.1",
+        "requests==2.34.2",
+        "tiktoken==0.13.0"
+      ],
+      "ref": "tavily-python==0.7.26"
+    },
+    {
+      "dependsOn": [
         "pytest==9.1.1"
       ],
       "ref": "tenacity==9.1.4"
+    },
+    {
+      "dependsOn": [
+        "regex==2026.7.10",
+        "requests==2.34.2"
+      ],
+      "ref": "tiktoken==0.13.0"
     },
     {
       "ref": "tomli==2.4.1"
@@ -4501,7 +4807,7 @@
     }
   ],
   "metadata": {
-    "timestamp": "2026-07-16T16:29:12.150182+00:00",
+    "timestamp": "2026-07-17T13:26:01.501474+00:00",
     "tools": {
       "components": [
         {
@@ -4605,7 +4911,7 @@
       ]
     }
   },
-  "serialNumber": "urn:uuid:39ba78c0-f9a3-419d-9ce5-460a928affa6",
+  "serialNumber": "urn:uuid:e1e0d8d1-2bed-466c-9249-041d2c208fe9",
   "version": 1,
   "$schema": "http://cyclonedx.org/schema/bom-1.6.schema.json",
   "bomFormat": "CycloneDX",

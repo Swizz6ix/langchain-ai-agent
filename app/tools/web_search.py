@@ -1,3 +1,15 @@
+import os
+from typing import Any
+
+from langchain.tools import tool
+from tavily import TavilyClient
+
+
+def get_tavily() -> Any:
+    return TavilyClient(api_key=os.environ["TAVILY_API_KEY"])
+
+
+@tool
 def web_search(query: str, num_results: int = 5) -> list[str]:
     """
     Perform a web search using the provided query and return a list of search results.
@@ -9,10 +21,8 @@ def web_search(query: str, num_results: int = 5) -> list[str]:
     Returns:
         list: A list of search result URLs.
     """
-    # Placeholder for actual web search implementation
-    # This function should interact with a web search API or service
-    # For demonstration purposes, we will return a mock list of URLs
-    mock_results = [
-        f"https://example.com/search?q={query}&result={i}" for i in range(1, num_results + 1)
-    ]
-    return mock_results
+    client = get_tavily()
+
+    response = client.search(query=query, max_results=num_results)
+
+    return [result["url"] for result in response["results"]]
