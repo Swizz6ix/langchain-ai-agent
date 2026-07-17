@@ -38,9 +38,9 @@ jobs:
             image: ${{ steps.image.outputs.image }}
 
         steps:
-            # - name: Lowercase image name
-            #   run: |
-            #     echo "IMAGE_NAME=${IMAGE_NAME,,}" >> $GITHUB_ENV
+            - name: Lowercase image name
+              run: |
+                echo "IMAGE_NAME=${IMAGE_NAME,,}" >> $GITHUB_ENV
 
 
             - name: Checkout Repository
