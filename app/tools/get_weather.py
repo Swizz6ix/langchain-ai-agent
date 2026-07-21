@@ -1,26 +1,80 @@
-def get_weather(location: str, unit: str = "Celsius") -> dict[str, str]:
+import os
+from typing import Any, Literal
+
+import requests
+from langchain.tools import tool
+from pydantic import BaseModel, Field
+
+
+class WeatherInput(BaseModel):
+    """Input for weather queries."""
+
+    location: str = Field(description="Name of the city")
+    units: Literal["celsius", "fahrenheit"] = Field(
+        default="celsius", description="Temperature unit preference"
+    )
+    include_forecast: bool = Field(default=False, description="Include 5-day forecast")
+
+
+@tool(args_schema=WeatherInput)
+def get_weather(
+    location: str, units: str = "celsius", include_forecast: bool = False
+) -> dict[str, Any]:
     """
-    Fetches the current weather for a given location using an AI assistant.
+    Fetches the current weather for a given location using an AI assistant
+    and optional forecast.
 
     Args:
         location (str): The name of the location (city, country, etc.) to get the weather for.
-        unit (str): The unit for temperature measurement ("Celsius" or "Fahrenheit").
+        units (str): The unit for temperature measurement ("Celsius" or "Fahrenheit").
+        include_forecast (bool): If a 5 day forecast is needed
 
     Returns:
-        dict: A dictionary containing weather information such as temperature,
-        humidity, and conditions.
+        str: A string containing weather information of the given location
     """
-    # Placeholder for actual implementation
-    # In a real scenario, this function would call an external weather API
-    # and return the relevant weather data.
-
-    # Example response (mock data)
-    weather_data = {
-        "location": location,
-        "temperature": "22 °C" if unit == "Celsius" else "72 °F",
-        "humidity": "60%",
-        "conditions": "Partly Cloudy",
-        "wind_speed": "15 km/h",
+    params: dict[str, str] = {
+        "q": location,
+        "units": "metric" if units == "celsius" else "imperial",
+        "appid": os.environ["OPEN_WEATHER_API_KEY"],
     }
 
-    return weather_data
+    response = requests.get(
+        "https://api.openweathermap.org/data/2.5/weather",
+        params=params,
+        timeout=10,
+    )
+
+    response.raise_for_status()
+    data = response.json()
+
+    result: dict[str, Any] = {
+        "location": location,
+        "current": {
+            "temperature": data["main"]["temp"],
+            "humidity": data["main"]["humidity"],
+            "conditions": data["weather"][0]["description"],
+            "wind_speed": data["wind"]["speed"],
+        },
+    }
+
+    if include_forecast:
+        forecast = requests.get(
+            "https://api.openweathermap.org/data/2.5/forecast",
+            params=params,
+            timeout=10,
+        )
+
+        forecast.raise_for_status()
+
+        forecast_data = forecast.json()
+
+        result["forecast"] = [
+            {
+                "time": item["dt_txt"],
+                "temperature": item["main"]["temp"],
+                "condition": item["weather"][0]["description"],
+            }
+            for item in forecast_data["list"][:5]
+        ]
+
+    return result

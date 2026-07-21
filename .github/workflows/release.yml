@@ -8,13 +8,18 @@ on:
 permissions:
   contents: write
   packages: write
+  id-token: write # required for keyless OIDC Cosign signature
+  attestations: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
 
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
-
 
 # Create Release
   release:
@@ -29,6 +34,10 @@ jobs:
         id: version
         run: |
           echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+
+      # Cosign Installation step
+      - name: Install Cosign
+        uses: sigstore/cosign-installer@v3.5.0
 
       - name: Login GHCR
         uses: docker/login-action@v3
@@ -50,22 +59,24 @@ jobs:
       - name: Promote Docker Image
         run: |
           IMAGE="ghcr.io/${{ github.repository }}"
-          docker pull \
-          $IMAGE:sha-${{ github.sha }}
+          docker pull $IMAGE:sha-${{ github.sha }}
 
-          docker tag \
-          $IMAGE:sha-${{ github.sha }} \
-          $IMAGE:${{ steps.version.outputs.VERSION }}
+          docker tag $IMAGE:sha-${{ github.sha }} $IMAGE:${{ steps.version.outputs.VERSION }}
 
-          docker tag \
-          $IMAGE:sha-${{ github.sha }} \
-          $IMAGE:stable
+          docker tag $IMAGE:sha-${{ github.sha }} $IMAGE:stable
 
-          docker push \
-          $IMAGE:${{ steps.version.outputs.VERSION }}
+          docker push $IMAGE:${{ steps.version.outputs.VERSION }}
 
-          docker push \
-          $IMAGE:stable
+          docker push $IMAGE:stable
+          
+
+        # Sign newly promoted tags
+      - name: Sign Promoted Image Tags
+        run: |
+          DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' \
+            "$IMAGE:${{ steps.version.outputs.VERSION }}"
+          )
+          cosign sign --yes "$DIGEST"
 
 
 
@@ -103,7 +114,9 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   notify:
-    needs: github-release
+    needs: 
+      - release
+      - github-release
 
     if: always()
 
@@ -111,7 +124,9 @@ jobs:
 
     with:
 
-        status: ${{ needs.github-release.result }}
+        status: |
+          release:${{ needs.release.result }}
+          github-release:${{ needs.github-release.result }}
 
         environment: Production
 

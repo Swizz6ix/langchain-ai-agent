@@ -2,12 +2,12 @@ name: Continuous Integration
 
 on:
   pull_request:
-    branches:
-      - main
 
   push:
     branches:
       - main
+      - staging
+      - develop
 
 jobs:
   build:
@@ -53,10 +53,10 @@ jobs:
     needs: build
     if: always()
 
-    uses: ./.github/workflows/notification.yml
+    uses: ./.github/workflows/notifications.yml
     with:
       status: ${{ needs.build.result }}
-      environment: Develoment
+      environment: ${{ github.head_ref || github.ref_name }}
       title: CI Pipeline
       message: Continuous Integration pipeline completed
     secrets: inherit

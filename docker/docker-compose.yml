@@ -1,8 +1,7 @@
-version: "3.9"
 services:
-  api:
+  app:
     image: ${IMAGE_NAME}:${IMAGE_TAG}
-    container_name: lanchain-agent
+    container_name: langchain-agent
 
     ports:
       - "8000:8000"
@@ -10,9 +9,40 @@ services:
     env_file:
       - .env
 
+    environment:
+      REDIS_URL: redis://redis:6379
+      PYTHONUNBUFFERED: "1"
+
     depends_on:
       redis:
-        condition: service_started
+        condition: service_healthy
+    
+    user: "1000:1000"
+    read_only: true
+    tmpfs:
+      - /tmp
+
+    security_opt:
+      - no-new-privileges:true
+
+    mem_limit: 1g
+    cpus: 1.0
+
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
+
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+    networks:
+      - backend
 
     restart: unless-stopped
 
@@ -20,8 +50,22 @@ services:
     image: redis:7-alpine
     container_name: redis
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+      
     volumes:
       - redis_data:/data
 
+    networks:
+      - backend
+
 volumes:
   redis_data:
+
+networks:
+  backend:
+    driver: bridge

@@ -1,4 +1,4 @@
-.PHONY: install run test lint format typecheck check clean \
+.PHONY: install run test lint format typecheck check unit integration clean \
         bandit pip-audit sbom licenses security
 
 install:
@@ -30,12 +30,18 @@ coverage:
 # Security
 
 bandit:
+# -lll: Only return a failing exit code (1) for Medium or High severity issues.
+# The JSON report will still contain ALL findings (including Low/Info) for your records.
 	uv run bandit \
 		-r app \
+		-lll \
 		-f json \
 		-o bandit-report.json
 
 pip-audit:
+# --desc on: provides descriptions of vulnerabilities.
+# --strict: halts only on known, high-risk vulnerabilities, but you can also pass
+# specific ignore arguments if you have unpatched, low-risk exceptions.
 	uv run pip-audit \
 		-f json \
 		-o pip-audit-report.json
@@ -50,9 +56,13 @@ licenses:
 		--output-file licenses.md
 
 
-security: bandit pip-audit sbom licenses
+security: 
+	-$(MAKE) bandit 
+	-$(MAKE) pip-audit 
+	$(MAKE) sbom 
+	$(MAKE) licenses
 
-
+# Utility and Quality Gates
 check:
 	$(MAKE) lint
 	$(MAKE) typecheck

@@ -1,7 +1,12 @@
 from typing import Any
 
+from langchain.tools import tool
 
-def text_summarizer(text: str, max_length: int=100) -> Any :
+from app.llm.provider import get_llm
+
+
+@tool("summarize", description="Performs text summarization")
+def text_summarizer(text: str, max_length: int = 100) -> Any:
     """
     Summarizes the input text to a specified maximum length.
 
@@ -12,9 +17,18 @@ def text_summarizer(text: str, max_length: int=100) -> Any :
     Returns:
     str: The summarized text.
     """
-    # Placeholder for actual summarization logic
-    # In a real implementation, you would use an AI model or algorithm here
-    if len(text) <= max_length:
-        return text
-    else:
-        return text[:max_length] + "..."
+
+    model = get_llm()
+
+    messages = [
+        (
+            "system",
+            f"""You are a helpful assistant that provide short summary of text. 
+            Summarize the user text in more than {max_length} words
+            """,
+        ),
+        ("user", text),
+    ]
+
+    response = model.invoke(messages)
+    return response.content

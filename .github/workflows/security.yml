@@ -2,8 +2,6 @@ name: Security
 
 on:
     pull_request:
-        branches:
-            - main
 
     push:
         branches:
@@ -23,6 +21,8 @@ jobs:
         steps:
             - name: Checkout Repository
               uses: actions/checkout@v4
+              with:
+                fetch-depth: 0
 
             - name: Setup Python
               uses: ./.github/actions/setup-python
@@ -103,7 +103,8 @@ jobs:
             - name: Initialize CodeQL
               uses: github/codeql-action/init@v3
               with:
-                language: python
+                languages: python
+                build-mode: none
 
             - name: Perform CodeQL Analysis
               uses: github/codeql-action/analyze@v3
@@ -115,10 +116,10 @@ jobs:
 
         if: always()
 
-        uses: ./.github/workflows/notification.yml
+        uses: ./.github/workflows/notifications.yml
         with:
-            status: ${{ needs.security.result }}
-            environment: Development
+            status: ${{ needs.security.result == 'success' && needs.codeql.result == 'success' && 'success' || 'failure' }}
+            environment: ${{ github.head_ref || github.ref_name }}
             title: Security Scan
             message: Security workflow completed
         secrets: inherit
