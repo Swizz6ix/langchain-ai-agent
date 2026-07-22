@@ -23,7 +23,7 @@ def text_summarizer(text: str, max_length: int = 100) -> Any:
     messages = [
         (
             "system",
-            f"""You are a helpful assistant that provide short summary of text. 
+            f"""You are a helpful assistant that provide short summary of text.
             Summarize the user text in more than {max_length} words
             """,
         ),

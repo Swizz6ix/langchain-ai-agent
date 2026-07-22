@@ -6,7 +6,6 @@ from app.core.config import get_settings
 
 
 def get_llm() -> Any:
-
     settings = get_settings()
 
     return ChatOpenRouter(
