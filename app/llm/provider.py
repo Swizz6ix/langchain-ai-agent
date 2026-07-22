@@ -4,16 +4,14 @@ from langchain_openrouter import ChatOpenRouter
 
 from app.core.config import get_settings
 
-import os
-
 
 def get_llm() -> Any:
 
     settings = get_settings()
 
     return ChatOpenRouter(
-        model="openai/gpt-oss-120b", 
+        model_name="openai/gpt-oss-120b",
         temperature=0,
         max_tokens=1024,
-        api_key=settings.openrouter_api_key
-        )
+        api_key=settings.openrouter_api_key,
+    )
