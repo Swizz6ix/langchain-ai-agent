@@ -9,4 +9,10 @@ from app.tools.web_search import web_search
 
 tools = [calculator, get_weather, web_search, text_summarizer]
 
-agent = create_agent(model=get_llm(), tools=tools, system_prompt=SYSTEM_PROMPT)
+def get_agent(): 
+    model = get_llm()
+    return create_agent(
+        model=model, 
+        tools=tools, 
+        system_prompt=SYSTEM_PROMPT
+    )

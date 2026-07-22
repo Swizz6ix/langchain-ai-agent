@@ -3,7 +3,7 @@ from typing import Any
 from fastapi import APIRouter
 from pydantic import BaseModel
 
-from app.agents.assistant import agent
+from app.agents.assistant import get_agent
 
 router = APIRouter()
 
@@ -18,7 +18,17 @@ class ChatResponse(BaseModel):
 
 @router.post("/chat")
 async def chat(request: ChatRequest) -> dict[str, Any]:
-    result = agent.invoke({"messages": [{"role": "user", "content": request.message}]})
+    agent = get_agent()
+    result = agent.invoke(
+        {
+            "messages": [
+                {
+                    "role": "user", 
+                    "content": request.message
+                }
+            ]
+        }
+    )
 
     final_message = result["messages"][-1]
 
