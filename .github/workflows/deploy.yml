@@ -62,8 +62,8 @@ jobs:
               run: |
                 IMAGE="ghcr.io/${{ github.repository }}:${{ inputs.image_tag }}"
                 echo "Verifying signature for $IMAGE..."
-                
-                # This ensures the image was signed by GitHub Actions, 
+
+                # This ensures the image was signed by GitHub Actions,
                 # originating specifically from your repository
                 cosign verify-attestation "$IMAGE" \
                   --type slsaprovenance

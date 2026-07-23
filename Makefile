@@ -56,10 +56,10 @@ licenses:
 		--output-file licenses.md
 
 
-security: 
-	-$(MAKE) bandit 
-	-$(MAKE) pip-audit 
-	$(MAKE) sbom 
+security:
+	-$(MAKE) bandit
+	-$(MAKE) pip-audit
+	$(MAKE) sbom
 	$(MAKE) licenses
 
 # Utility and Quality Gates

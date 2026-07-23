@@ -23,6 +23,7 @@
 | defusedxml                | 0.7.1       | Python Software Foundation License                                             |
 | distlib                   | 0.4.3       | Python Software Foundation License                                             |
 | distro                    | 1.9.0       | Apache Software License                                                        |
+| dotenv                    | 0.9.9       | UNKNOWN                                                                        |
 | fastapi                   | 0.139.0     | MIT                                                                            |
 | filelock                  | 3.29.7      | MIT                                                                            |
 | fqdn                      | 1.5.1       | Mozilla Public License 2.0 (MPL 2.0)                                           |
@@ -71,6 +72,7 @@
 | pre_commit                | 4.6.0       | MIT                                                                            |
 | py-serializable           | 2.1.0       | Apache Software License                                                        |
 | pydantic                  | 2.13.4      | MIT                                                                            |
+| pydantic-settings         | 2.14.2      | MIT                                                                            |
 | pydantic_core             | 2.46.4      | MIT                                                                            |
 | pyparsing                 | 3.3.2       | MIT                                                                            |
 | pytest                    | 9.1.1       | MIT                                                                            |

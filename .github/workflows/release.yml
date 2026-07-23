@@ -68,7 +68,7 @@ jobs:
           docker push $IMAGE:${{ steps.version.outputs.VERSION }}
 
           docker push $IMAGE:stable
-          
+
 
         # Sign newly promoted tags
       - name: Sign Promoted Image Tags
@@ -114,7 +114,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   notify:
-    needs: 
+    needs:
       - release
       - github-release
 

@@ -4,7 +4,7 @@ from langchain.tools import tool
 from simpleeval import simple_eval
 
 
-@tool
+@tool("calculator", description="Performs arithmrtic calculatons. Use this for any math problms.")
 def calculator(expression: str) -> Any | None:
     """
     Evaluates a mathematical expression and returns the result.
