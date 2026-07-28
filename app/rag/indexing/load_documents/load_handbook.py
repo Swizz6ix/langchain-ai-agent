@@ -1,7 +1,10 @@
 from pathlib import Path
+from typing import Any
+
 from pypdf import PdfReader
-    
-def load_handbook():
+
+
+def load_handbook() -> Any:
     handBook_path = Path("app/assets/Employee-Handbook.pdf")
 
     if not handBook_path.exists():

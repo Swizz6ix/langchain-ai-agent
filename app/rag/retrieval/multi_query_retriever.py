@@ -1,13 +1,14 @@
-from typing import List
+from typing import Any
 
 from langsmith import traceable
-from app.rag.retrieval.rewrite_query import rewrite_query
+
 from app.rag.retrieval.document_retriever import documents_retriever
 from app.rag.retrieval.rerank_documents import rerank_documents
-from langchain_core.documents import Document
+from app.rag.retrieval.rewrite_query import rewrite_query
+
 
 @traceable(run_type="retriever", name="multi_query_retriever")
-def multi_query_retriever(question: str, source=None, top_n=5) -> List[Document]:
+def multi_query_retriever(question: str, source: str | None = None, top_n: int = 5) -> Any:
     """
     Rewrite query into multiple versions, retrieve from all, deduplicate, rerank
     """

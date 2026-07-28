@@ -1,4 +1,4 @@
-QA_PROMPT =  """
+QA_PROMPT = """
 ROLE:
 You are a helpful assistant for MJ Hughes company. 
 

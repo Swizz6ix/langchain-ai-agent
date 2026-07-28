@@ -1,12 +1,12 @@
 from dotenv import load_dotenv
-load_dotenv()
 from fastapi import FastAPI
 
 from app.api.health import router as health_router
 from app.api.home import router as root
-from app.api.tool_assistant import router as tool_assistant
 from app.api.rag_assistant import router as rag_assistant
+from app.api.tool_assistant import router as tool_assistant
 
+load_dotenv()
 
 app = FastAPI(title="Langchain AI Agent")
 

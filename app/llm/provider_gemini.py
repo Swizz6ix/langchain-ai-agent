@@ -1,7 +1,7 @@
-from langchain_google_genai import GoogleGenerativeAIEmbeddings, ChatGoogleGenerativeAI
+from typing import Any
 
-def get_llm():
-    return ChatGoogleGenerativeAI(
-        model = "gemini-3.5-flash",
-        temperature = 0
-    )
+from langchain_google_genai import ChatGoogleGenerativeAI
+
+
+def get_llm() -> Any:
+    return ChatGoogleGenerativeAI(model="gemini-3.5-flash", temperature=0)

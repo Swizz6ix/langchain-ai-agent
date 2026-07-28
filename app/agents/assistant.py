@@ -1,6 +1,6 @@
 from typing import Any
 
-from langchain.agents import AgentState, create_agent
+from langchain.agents import create_agent
 from langgraph.graph.state import CompiledStateGraph
 
 from app.llm.provider_openrouter import get_llm
@@ -13,6 +13,6 @@ from app.tools.web_search import web_search
 tools = [calculator, get_weather, web_search, text_summarizer]
 
 
-def get_agent() ->  CompiledStateGraph[Any, Any, Any, Any]:
+def get_agent() -> CompiledStateGraph[Any, Any, Any, Any]:
     model = get_llm()
     return create_agent(model=model, tools=tools, system_prompt=SYSTEM_PROMPT)
