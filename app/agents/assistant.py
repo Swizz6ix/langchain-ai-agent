@@ -3,7 +3,7 @@ from typing import Any
 from langchain.agents import AgentState, create_agent
 from langgraph.graph.state import CompiledStateGraph
 
-from app.llm.provider import get_llm
+from app.llm.provider_openrouter import get_llm
 from app.prompts.system import SYSTEM_PROMPT
 from app.tools.calculator import calculator
 from app.tools.get_weather import get_weather

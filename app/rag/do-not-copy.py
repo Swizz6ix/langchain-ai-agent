@@ -3,19 +3,22 @@ import os
 import getpass
 import hashlib
 from pathlib import Path
+from typing import List
 from dotenv import load_dotenv
 from pypdf import PdfReader
 from langchain_core.documents import Document
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_pinecone import PineconeVectorStore
 from pinecone import Pinecone
-from langchain_classic.retrievers.contextual_compression import ContextualCompressionRetriever
+from langchain_classic.retrievers import ContextualCompressionRetriever
 from langchain_cohere import CohereRerank
 from langchain_core.prompts import ChatPromptTemplate
 from app.prompts.rewrite_query import REWRITE_PROMPT
 from app.prompts.qa import QA_PROMPT
 from app.prompts.system import SYSTEM_PROMPT
 from langchain_classic.chains.combine_documents import create_stuff_documents_chain
+from langchain_core.output_parsers import StrOutputParser
+from langchain_core.runnables import RunnableParallel, RunnablePassthrough
 
 load_dotenv()
 
@@ -205,24 +208,48 @@ rephase_query = ChatPromptTemplate.from_messages([
     )
 ])
 
+def rewrite_query(question: str) -> List[str]:
+    """Generate 3 query variations and return them as a list"""
+    chain = rephase_query | llm | StrOutputParser()
+    result = chain.invoke({"question": question})
+
+    print("results..query>>", result)
+
+    # Parse numbered List
+    queries = [line.strip() for line in result.split("\n") if line.strip()]
+
+    # Remove numbering (1. 2. 3.)
+    queries = [re.sub(r"^\d+\.\s*", "", q) for q in queries]
+
+    # Always include the original question
+    if question not in queries:
+        queries.insert(0, question)
+    print("queries", queries)
+    
+    return queries
+
+
+
+
 user_query = "How do I get a discount"
 
-query_rewriter = rephase_query | llm
-response = query_rewriter.invoke({
-    "question": user_query
-})
 
-if isinstance(response.content, str):
-    query = response.content
+# query_rewriter = rephase_query | llm
+# response = query_rewriter.invoke({
+#     "question": user_query
+# })
 
-else:
-    query = "".join(
-        part["text"]
-        for part in response.content
-        if part.get("type") == "text"
-    )
+# if isinstance(response.content, str):
+#     query = response.content
 
-print("query ==>", query)
+# else:
+#     query = "".join(
+#         part["text"]
+#         for part in response.content
+#         if part.get("type") == "text"
+#     )
+
+# print("query ==>", query)
 
 
 
@@ -254,7 +281,7 @@ compression_retriever = ContextualCompressionRetriever(
     base_retriever = retriever
 )
 
-results = compression_retriever.invoke(query)
+# results = compression_retriever.invoke(query)
 
 qa_prompt = ChatPromptTemplate.from_messages([
     (
@@ -267,15 +294,67 @@ qa_prompt = ChatPromptTemplate.from_messages([
     )
 ])
 
-qa_chain = create_stuff_documents_chain(
-    llm,
-    qa_prompt
-)
+def format_docs(docs: List[Document]) -> str:
+    """
+    Format retrieved documents into a single context string
+    """
+    formatted = []
 
-answer = qa_chain.invoke({
-    "context": results,
-    "question": user_query
-})
+    for i, doc in enumerate(docs, 1):
+        source = doc.metadata.get("source", "unknown")
+        page = doc.metadata.get("page", "unknown")
+        formatted.append(f"[Document {i} | Source: {source} | Page: {page}]\n{doc.page_content}")
+    return "\n\n--\n\n".join(formatted)
 
-print("rerank",results)
-print("QA", answer)
+# Multi_query retriever
+def multi_query_retriever(question: str, source=None, top_n=5) -> List[Document]:
+    """
+    Rewrite query into multiple versions, retrieve from all, deduplicate rerank
+    """
+    queries = rewrite_query(question)
+    retriever = compression_retriever
+
+    all_docs = []
+    seen_ids = set()
+
+    for q in queries:
+        docs = retriever.invoke(q)
+        for doc in docs:
+            if doc.id not in seen_ids:
+                seen_ids.add(doc.id)
+                all_docs.append(doc)
+    print("docs", all_docs)
+    return all_docs[:top_n * 2]
+
+def create_qa_chain(source=None):
+    """Returns a runnable chain: question -> docs -> answer."""
+
+    def retrive_and_format(question: str):
+        docs = multi_query_retriever(question, source=source, top_n=5)
+        return {"context": format_docs(docs), "docs": docs, "question": question}
+
+    chain = (
+        RunnablePassthrough() | retrive_and_format | qa_prompt | llm | StrOutputParser()
+    )
+
+    return chain
+
+qa_chain = create_qa_chain()
+
+answer = qa_chain.invoke(user_query)
+print("ANSWERS>>>>>", answer)
+
+
+# qa_chain = create_stuff_documents_chain(
+#     llm,
+#     qa_prompt
+# )
+
+# answer = qa_chain.invoke({
+#     "context": results,
+#     "question": user_query
+# })
+
+# print("rerank",results)
+# print("QA", answer)
+

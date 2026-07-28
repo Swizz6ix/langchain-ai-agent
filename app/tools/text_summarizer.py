@@ -2,7 +2,7 @@ from typing import Any
 
 from langchain.tools import tool
 
-from app.llm.provider import get_llm
+from app.llm.provider_openrouter import get_llm
 
 
 @tool("summarize", description="Performs text summarization")
