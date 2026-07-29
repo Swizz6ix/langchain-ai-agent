@@ -10,7 +10,7 @@ def get_tavily() -> Any:
 
 
 @tool
-def web_search(query: str, num_results: int = 5) -> list[str]:
+def web_search(query: str, num_results: int = 5, min_score: float = 0.70) -> list[dict[str, Any]]:
     """
     Perform a web search using the provided query and return a list of search results.
 
@@ -23,6 +23,20 @@ def web_search(query: str, num_results: int = 5) -> list[str]:
     """
     client = get_tavily()
 
-    response = client.search(query=query, max_results=num_results)
+    response = client.search(
+        query=query,
+        search_depth="advanced",
+        # include_answer = "advanced",
+        max_results=num_results,
+    )
 
-    return [result["url"] for result in response["results"]]
+    return [
+        {
+            "title": result["title"],
+            "content": result["content"],
+            "url": result["url"],
+            "score": result["score"],
+        }
+        for result in response["results"]
+        if result["score"] >= min_score
+    ]

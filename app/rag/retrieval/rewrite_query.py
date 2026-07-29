@@ -3,7 +3,7 @@ import re
 from langchain_core.output_parsers import StrOutputParser
 from langsmith import traceable
 
-from app.llm.provider_gemini import get_llm
+from app.llm.provider_openrouter import get_llm
 from app.prompts.rewrite_query import REWRITE_PROMPT
 from app.rag.prompt_template.prompt_temp import prompt_temp
 

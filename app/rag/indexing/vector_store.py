@@ -1,9 +1,10 @@
-from dotenv import load_dotenv
 from typing import Any
 
+from dotenv import load_dotenv
 from langchain_pinecone import PineconeVectorStore
 
 from app.rag.indexing.store import get_store
+
 load_dotenv()
 
 index_name = "company-knowledge"

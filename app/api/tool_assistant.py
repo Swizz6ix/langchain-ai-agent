@@ -16,7 +16,7 @@ class ChatResponse(BaseModel):
     response: str
 
 
-@router.post("/chat")
+@router.post("/assist")
 async def chat(request: ChatRequest) -> dict[str, Any]:
     agent = get_agent()
     result = agent.invoke({"messages": [{"role": "user", "content": request.message}]})
