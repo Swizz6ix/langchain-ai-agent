@@ -4,6 +4,9 @@ from typing import Any
 from langchain.tools import tool
 from tavily import TavilyClient
 
+from app.core.contextvars import request_context
+from app.helper.logger import log_info
+
 
 def get_tavily() -> Any:
     return TavilyClient(api_key=os.environ["TAVILY_API_KEY"])
@@ -22,6 +25,14 @@ def web_search(query: str, num_results: int = 5, min_score: float = 0.70) -> lis
         list: A list of search result URLs.
     """
     client = get_tavily()
+
+    ctx = request_context.get()
+
+    log_info(
+        "Executing Tavily search",
+        tool = "web_search",
+        query = query,
+    )
 
     response = client.search(
         query=query,
