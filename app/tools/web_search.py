@@ -30,8 +30,8 @@ def web_search(query: str, num_results: int = 5, min_score: float = 0.70) -> lis
 
     log_info(
         "Executing Tavily search",
-        tool = "web_search",
-        query = query,
+        tool="web_search",
+        query=query,
     )
 
     response = client.search(

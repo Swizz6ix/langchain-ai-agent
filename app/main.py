@@ -1,13 +1,15 @@
 import logging
+
 from dotenv import load_dotenv
 from fastapi import FastAPI
+
+from app.api.middleware import RequestContextMiddleware
 from app.api.routes.auth import router as auth_router
 from app.api.routes.chat import router as chat
 from app.api.routes.health import router as health_router
 from app.api.routes.home import router as root
 from app.api.routes.rag_assistant import router as rag_assistant
 from app.api.routes.tool_assistant import router as tool_assistant
-from app.api.middleware import RequestContextMiddleware
 from app.helper.lifespan import get_lifespan
 
 load_dotenv()
