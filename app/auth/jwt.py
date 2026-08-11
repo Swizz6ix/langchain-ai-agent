@@ -1,10 +1,10 @@
-import uuid
+from uuid import UUID, uuid4
 from datetime import UTC, datetime, timedelta
 
 from fastapi import HTTPException
 from jose import JWTError, jwt
 
-from app.auth.models import User
+from app.models.users import User
 from app.core.config import get_settings
 
 settings = get_settings()
@@ -14,14 +14,15 @@ def create_access_token(user: User) -> str:
     expire = datetime.now(UTC) + timedelta(minutes=settings.access_token_expire_minutes)
 
     payload = {
-        "sub": user.id,
+        "sub": str(user.id),
         "email": user.email,
-        "role": user.role,
+        "tenant_id": str(user.tenant_id),
+        "role": str(user.role),
         "iat": datetime.now(UTC),
         "exp": expire,
         "iss": settings.jwt_iss,
         "aud": settings.jwt_aud,
-        "jti": str(uuid.uuid4()),
+        "jti": str(uuid4()),
     }
 
     return jwt.encode(
@@ -43,10 +44,11 @@ def verify_token(token: str) -> User:
         )
 
         return User(
-            id=payload["sub"],
+            id=UUID(payload["sub"]),
             email=payload["email"],
             role=payload["role"],
+            tenant_id=payload["tenant_id"],
         )
 
-    except JWTError as e:
+    except (JWTError, ValueError, KeyError) as e:
         raise HTTPException(status_code=401, detail=f"Invalid token: {str(e)}")

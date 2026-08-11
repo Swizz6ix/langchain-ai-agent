@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 from fastapi import FastAPI
 
 from app.api.middleware import RequestContextMiddleware
+from app.api.routes.company_auth import router as company_auth
 from app.api.routes.auth import router as auth_router
 from app.api.routes.chat import router as chat
 from app.api.routes.health import router as health_router
@@ -11,7 +12,8 @@ from app.api.routes.home import router as root
 from app.api.routes.rag_assistant import router as rag_assistant
 from app.api.routes.tool_assistant import router as tool_assistant
 from app.helper.lifespan import get_lifespan
-
+from app.api.routes.invite import router as invite_routher
+from app.api.exceptions import register_exception_handlers
 load_dotenv()
 
 logger = logging.getLogger(__name__)
@@ -20,9 +22,15 @@ lifespan = get_lifespan
 
 app = FastAPI(title="Langchain AI Agent", lifespan=lifespan)
 
+register_exception_handlers(app)
+
 app.add_middleware(RequestContextMiddleware)
 
 app.include_router(root)
+
+app.include_router(company_auth, prefix="/api/v1")
+
+app.include_router(invite_routher, prefix="/api/v1")
 
 app.include_router(auth_router, prefix="/api/v1")
 
